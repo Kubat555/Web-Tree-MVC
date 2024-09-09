@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<TreeDbContext>(op => op.UseNpgsql(builder.Configuration.GetConnectionString("PostgreDb")));
+builder.Services.AddDbContext<TreeDbContext>(op => op.UseNpgsql(builder.Configuration["PostgreDb"]));
 
 var app = builder.Build();
 
