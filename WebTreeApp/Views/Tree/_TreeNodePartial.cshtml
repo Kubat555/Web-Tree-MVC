@@ -1,0 +1,32 @@
+﻿@model TreeNode
+
+<div class="tree-node border">
+    <div class="node-content">
+        <span>@Model.Name</span>
+        <div class="btn-group ms-2">
+            @if (Model.Children.Any()){
+                <button class="btn btn-sm btn-secondary me-2" type="button" onclick="toggleChildren(@Model.Id)">Скрыть</button>
+            }
+            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Функции</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="showAddChildForm(@Model.Id, @Model.Order)">Добавить узел</a></li>
+                <li><a class="dropdown-item" href="#" onclick="showMoveNodeForm(@Model.Id)">Переместить</a></li>
+                <li><a class="dropdown-item text-danger" href="#" onclick="deleteNode(@Model.Id)">Удалить</a></li>
+            </ul>
+
+           
+        </div>
+    </div>
+
+    @if (Model.Children.Any())
+    {
+        <div id="children-@Model.Id" class="tree-children">
+            @foreach (var child in Model.Children)
+            {
+                {
+                    await Html.RenderPartialAsync("_TreeNodePartial", child);
+                }
+            }
+        </div>
+    }
+</div>
