@@ -34,18 +34,30 @@ function createNode(event, parentId, parentOrder) {
 }
 
 function showMoveNodeForm(nodeId) {
-    fetch(`/Tree/GetNodesForMove/${nodeId}`) 
+    fetch(`/Tree/GetNodesForMove/${nodeId}`)
         .then(response => response.json())
         .then(nodes => {
             const formContainer = document.getElementById(`form-container`);
-            let options = nodes.map(node => `<option value="${node.id}">${node.name}</option>`).join('');
-            formContainer.innerHTML = `
-                <form onsubmit="moveNode(event, ${nodeId})">
-                    <select class="form-select" name="newParentId" required>${options}</select>
-                    <button class="btn btn-success mt-2" type="submit">Переместить</button>
-                    <button class="btn btn-secondary mt-2" type="button" onclick="clearForm()">Отмена</button>
-                </form>`;
-        }); // Форма для перемещения узла
+
+            if (nodes.length === 0) {
+                formContainer.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        Нет доступных узлов для перемещения.
+                    </div>
+                    <button class="btn btn-secondary mt-2" type="button" onclick="clearForm()">Закрыть</button>`;
+            } else {
+                let options = nodes.map(node => `<option value="${node.id}">${node.name}</option>`).join('');
+                formContainer.innerHTML = `
+                    <form onsubmit="moveNode(event, ${nodeId})">
+                        <select class="form-select" name="newParentId" required>${options}</select>
+                        <button class="btn btn-success mt-2" type="submit">Переместить</button>
+                        <button class="btn btn-secondary mt-2" type="button" onclick="clearForm()">Отмена</button>
+                    </form>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching nodes:', error);
+        });
 }
 
 function moveNode(event, nodeId) {

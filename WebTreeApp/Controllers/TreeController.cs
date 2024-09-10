@@ -41,7 +41,6 @@ namespace WebTreeApp.Controllers
         public async Task<IActionResult> GetNodesForMove(int id)
         {
             var node = await _context.TreeNodes
-                .Include(t => t.Children)
                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (node == null)
@@ -50,7 +49,8 @@ namespace WebTreeApp.Controllers
             }
 
             // Получаем всех потомков узла
-            var descendantIds = GetDescendantIds(node);
+            List<int> descendantIds = new();
+            await GetDescendants(id, descendantIds);
 
             // Получаем узлы, которые не являются потомками и не являются родителями узла
             var nodes = await _context.TreeNodes
@@ -88,16 +88,19 @@ namespace WebTreeApp.Controllers
         }
 
 
-        // Вспомогательная функция для получения ID всех потомков узла
-        private List<int> GetDescendantIds(TreeNode node)
+        private async Task GetDescendants(int nodeId, List<int> descendants)
         {
-            var ids = new List<int>();
-            foreach (var child in node.Children)
+            descendants.Add(nodeId);
+
+            var children = await _context.TreeNodes
+                                        .Where(node => node.ParentId == nodeId)
+                                        .Select(node => node.Id)
+                                        .ToListAsync();
+
+            foreach (var childId in children)
             {
-                ids.Add(child.Id);
-                ids.AddRange(GetDescendantIds(child)); // Рекурсивно добавляем потомков
+                await GetDescendants(childId, descendants);
             }
-            return ids;
         }
     }
 }
